@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CallFlow AI voice operations dashboard and conversation simulator."
+    />
+    <meta name="theme-color" content="#0b1020" />
+    <title>CallFlow AI — Voice Operations</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to dashboard</a>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="#overview" aria-label="CallFlow AI home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </span>
+          <span class="brand-copy">
+            <strong>CallFlow</strong>
+            <small>AI voice operations</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-item active" href="#overview" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z" /></svg>
+            Overview
+          </a>
+          <a class="nav-item" href="#calls">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.8 15.8 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1.1l-2.3 2.1Z" /></svg>
+            Recent calls
+          </a>
+          <a class="nav-item" href="#handoffs">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3ZM8 11c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3Zm8 2c-2 0-6 1-6 3v3h12v-3c0-2-4-3-6-3ZM8 13c-2.3 0-6 1.2-6 3.5V19h6v-3c0-.8.3-1.6.9-2.2-.3-.3-.6-.5-.9-.8Z" /></svg>
+            Handoffs
+          </a>
+          <a class="nav-item" href="#simulator">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H5.2L4 17.2V4Zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm3 5h10v2H7V7Zm0 4h7v2H7v-2Z" /></svg>
+            Simulator
+          </a>
+        </nav>
+
+        <div class="sidebar-spacer"></div>
+
+        <div class="stack-card" aria-label="Voice stack status">
+          <div class="stack-card-header">
+            <span class="eyebrow">Voice stack</span>
+            <span class="live-dot"><i></i> Ready</span>
+          </div>
+          <ul>
+            <li><span>Telephony</span><strong>Twilio</strong></li>
+            <li><span>Reasoning</span><strong>Groq</strong></li>
+            <li><span>Automation</span><strong>n8n</strong></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-footer">
+          <span class="avatar" aria-hidden="true">AI</span>
+          <span><strong>Operations</strong><small>Production workspace</small></span>
+          <span class="status-beacon" title="Systems online"></span>
+        </div>
+      </aside>
+
+      <main id="main-content" class="main-content">
+        <header class="topbar">
+          <button class="mobile-brand" type="button" aria-label="CallFlow AI">
+            <span class="brand-mark mini" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </span>
+            <strong>CallFlow AI</strong>
+          </button>
+          <div class="topbar-actions">
+            <span id="connectionStatus" class="connection-status" role="status">
+              <i></i><span>Connecting</span>
+            </span>
+            <button id="refreshButton" class="icon-button" type="button" aria-label="Refresh dashboard" title="Refresh dashboard">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.8-4.3L13 11h8V3l-3.3 3.3Z" /></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <section id="overview" class="page-heading" aria-labelledby="page-title">
+            <div>
+              <div class="eyebrow-row"><span class="eyebrow">Operations center</span><span class="date-chip" id="currentDate"></span></div>
+              <h1 id="page-title">Voice agent overview</h1>
+              <p>Monitor conversations, automation outcomes, and human escalations in real time.</p>
+            </div>
+            <a class="primary-button" href="#simulator">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z" /></svg>
+              Test agent
+            </a>
+          </section>
+
+          <section class="kpi-grid" aria-label="Call KPIs">
+            <article class="kpi-card accent-violet">
+              <div class="kpi-topline">
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.8 15.8 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1.1l-2.3 2.1Z" /></svg></span>
+                <span class="trend-chip neutral">All time</span>
+              </div>
+              <span class="kpi-label">Total calls</span>
+              <strong id="totalCalls" class="kpi-value skeleton-text">—</strong>
+              <span class="kpi-foot"><i class="pulse-dot"></i><b id="activeCalls">—</b> active now</span>
+            </article>
+
+            <article class="kpi-card accent-emerald">
+              <div class="kpi-topline">
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1.2 14.5-4-4 1.4-1.4 2.6 2.6 5-5 1.4 1.4-6.4 6.4Z" /></svg></span>
+                <span class="trend-chip positive">Automated</span>
+              </div>
+              <span class="kpi-label">Containment rate</span>
+              <strong id="containmentRate" class="kpi-value skeleton-text">—</strong>
+              <div class="progress-track" aria-hidden="true"><span id="containmentBar"></span></div>
+            </article>
+
+            <article class="kpi-card accent-amber">
+              <div class="kpi-topline">
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 10.4V6h-2v7.2l4.8 2.8 1-1.7-3.8-1.9Z" /></svg></span>
+                <span class="trend-chip neutral">Per call</span>
+              </div>
+              <span class="kpi-label">Average turns</span>
+              <strong id="averageTurns" class="kpi-value skeleton-text">—</strong>
+              <span class="kpi-foot">Natural, goal-focused dialogue</span>
+            </article>
+
+            <article class="kpi-card accent-blue">
+              <div class="kpi-topline">
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3ZM8 11c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3Zm8 2c-2 0-6 1-6 3v3h12v-3c0-2-4-3-6-3Z" /></svg></span>
+                <span class="trend-chip neutral" id="handoffTrend">Review</span>
+              </div>
+              <span class="kpi-label">Human handoffs</span>
+              <strong id="handoffCount" class="kpi-value skeleton-text">—</strong>
+              <span class="kpi-foot"><b id="appointmentCount">—</b> appointments booked</span>
+            </article>
+          </section>
+
+          <section class="dashboard-grid">
+            <article id="calls" class="panel calls-panel">
+              <div class="panel-header">
+                <div>
+                  <span class="eyebrow">Conversation log</span>
+                  <h2>Recent calls</h2>
+                </div>
+                <span class="soft-chip"><i></i> Live feed</span>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Caller</th>
+                      <th scope="col">Intent</th>
+                      <th scope="col">Outcome</th>
+                      <th scope="col">Turns</th>
+                      <th scope="col">Started</th>
+                    </tr>
+                  </thead>
+                  <tbody id="callsTableBody">
+                    <tr class="loading-row"><td colspan="5"><span class="loading-line"></span><span class="loading-line short"></span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="callsEmpty" class="empty-state hidden">
+                <span class="empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H5.2L4 17.2V4Zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Z" /></svg></span>
+                <strong>No calls yet</strong>
+                <p>Use the simulator to start the first conversation.</p>
+              </div>
+            </article>
+
+            <article id="handoffs" class="panel handoff-panel">
+              <div class="panel-header">
+                <div>
+                  <span class="eyebrow">Escalation desk</span>
+                  <h2>Handoff status</h2>
+                </div>
+                <span id="handoffBadge" class="count-badge">0</span>
+              </div>
+              <div id="handoffList" class="handoff-list" aria-live="polite">
+                <div class="loading-card"><span></span><span></span></div>
+              </div>
+              <div class="handoff-note">
+                <span class="note-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 17h2v2h-2v-2Zm0-12h2v10h-2V5Zm1-3a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" /></svg></span>
+                <p><strong>Context-preserving transfer</strong><br />Agents receive the call summary, intent, and handoff reason.</p>
+              </div>
+            </article>
+          </section>
+
+          <section id="simulator" class="panel simulator-panel" aria-labelledby="simulator-title">
+            <div class="simulator-copy">
+              <span class="eyebrow">Browser test console</span>
+              <h2 id="simulator-title">Try the conversation brain</h2>
+              <p>Type what a caller would say. The same orchestration logic handles intent, tools, and human handoff without placing a real call.</p>
+              <div class="capability-list" aria-label="Simulator capabilities">
+                <span><i></i> Session memory</span>
+                <span><i></i> Tool execution</span>
+                <span><i></i> Natural handoff</span>
+              </div>
+              <div class="quick-prompts">
+                <span>Try a scenario</span>
+                <button type="button" data-prompt="I want to book a consultation for tomorrow afternoon.">Book appointment</button>
+                <button type="button" data-prompt="Can you tell me your pricing and what is included?">Ask about pricing</button>
+                <button type="button" data-prompt="This is urgent. I need to speak with a human agent.">Request a human</button>
+              </div>
+            </div>
+
+            <div class="chat-shell">
+              <div class="chat-header">
+                <div class="agent-avatar" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <div>
+                  <strong>Ava · Voice concierge</strong>
+                  <span><i></i> Online and ready</span>
+                </div>
+                <button id="resetConversation" class="text-button" type="button">New session</button>
+              </div>
+
+              <div id="transcript" class="transcript" role="log" aria-live="polite" aria-label="Conversation transcript">
+                <div class="message agent-message">
+                  <span class="message-author">Ava</span>
+                  <div class="message-bubble">Hi! I’m Ava, the CallFlow AI assistant. How can I help you today?</div>
+                  <time>Ready now</time>
+                </div>
+              </div>
+
+              <div id="turnMetadata" class="turn-metadata hidden" aria-live="polite"></div>
+
+              <form id="simulatorForm" class="composer">
+                <div class="form-fields">
+                  <label>
+                    <span>Session ID <small>optional</small></span>
+                    <input id="sessionId" name="session_id" type="text" maxlength="80" autocomplete="off" placeholder="Generated automatically" />
+                  </label>
+                  <label>
+                    <span>Caller <small>optional</small></span>
+                    <input id="caller" name="caller" type="tel" maxlength="32" autocomplete="tel" placeholder="+92 300 1234567" />
+                  </label>
+                </div>
+                <div class="message-input-row">
+                  <label class="sr-only" for="messageInput">Caller message</label>
+                  <textarea id="messageInput" name="text" rows="1" maxlength="1000" placeholder="Type what the caller says…" required></textarea>
+                  <button id="sendButton" class="send-button" type="submit" aria-label="Send message">
+                    <span>Send</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.4 20.4 18-7.7a.8.8 0 0 0 0-1.4l-18-7.7a.8.8 0 0 0-1.1.9L4.1 10l9.3 2-9.3 2-1.8 5.5a.8.8 0 0 0 1.1.9Z" /></svg>
+                  </button>
+                </div>
+                <p class="composer-hint">Enter to send · Shift + Enter for a new line</p>
+              </form>
+            </div>
+          </section>
+
+          <footer class="page-footer">
+            <span>CallFlow AI · Real-time voice orchestration</span>
+            <span>Last synced <time id="lastSynced">—</time></span>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

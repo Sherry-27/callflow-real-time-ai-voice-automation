@@ -1,0 +1,40 @@
+services:
+  callflow:
+    build:
+      context: .
+    ports:
+      - "${APP_PORT:-8001}:8001"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8001
+      DATABASE_PATH: /app/data/callflow.db
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://your-public-domain.example}
+      PUBLIC_WS_URL: ${PUBLIC_WS_URL:-wss://your-public-domain.example/ws/conversation}
+      API_KEY: ${API_KEY:-local-demo-key}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-20b}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      VALIDATE_TWILIO_SIGNATURE: ${VALIDATE_TWILIO_SIGNATURE:-false}
+      HUMAN_AGENT_PHONE: ${HUMAN_AGENT_PHONE:-}
+      N8N_POST_CALL_WEBHOOK: ${N8N_POST_CALL_WEBHOOK:-}
+    volumes:
+      - callflow-data:/app/data
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:2.43.7
+    profiles: ["automation"]
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-replace-before-production}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-UTC}
+      TZ: ${GENERIC_TIMEZONE:-UTC}
+    volumes:
+      - n8n-data:/home/node/.n8n
+    restart: unless-stopped
+
+volumes:
+  callflow-data:
+  n8n-data:

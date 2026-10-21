@@ -1,0 +1,226 @@
+{
+  "name": "CallFlow AI - Post-call Follow-up",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "callflow-post-call",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "92acf625-3377-4f90-aad9-fbf89e8b0fc1",
+      "name": "Post-call Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        100
+      ],
+      "webhookId": "ad91d540-8c50-43d0-b47a-19f439cf5918"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json.body ?? $json;\nconst booleanValue = (value) => {\n  if (typeof value === 'boolean') return value;\n  if (typeof value === 'number') return value > 0;\n  return ['true', 'yes', '1', 'required'].includes(String(value ?? '').toLowerCase());\n};\nconst handoffRequired = booleanValue(input.handoff ?? input.handoff_required) || Boolean(input.handoff_reason);\nreturn [{\n  json: {\n    event: 'call.completed',\n    source: 'callflow-ai',\n    session_id: input.session_id ?? input.sessionId ?? null,\n    call_sid: input.call_sid ?? input.callSid ?? null,\n    caller: input.caller ?? input.from ?? null,\n    status: input.status ?? 'completed',\n    outcome: input.outcome ?? (handoffRequired ? 'human_handoff' : 'resolved'),\n    intent: input.intent ?? 'general_enquiry',\n    summary: input.summary ?? '',\n    turn_count: Number(input.turn_count ?? input.turns ?? 0),\n    handoff_required: handoffRequired,\n    handoff_reason: input.handoff_reason ?? null,\n    started_at: input.started_at ?? null,\n    ended_at: input.ended_at ?? new Date().toISOString(),\n    duration_seconds: Number(input.duration_seconds ?? 0),\n    recording_url: input.recording_url ?? null,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "c6ea20af-cfd8-4bfc-a5b0-a91f21bdf9c9",
+      "name": "Normalize Call Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -470,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CALLFLOW_SUMMARY_WEBHOOK_URL || 'https://example.invalid/callflow-summary' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-CallFlow-Secret",
+              "value": "={{ $env.CALLFLOW_AUTOMATION_SECRET || 'replace-me' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "5595f24e-3dbb-412c-9303-a8d4b676810a",
+      "name": "Send Call Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -220,
+        100
+      ],
+      "continueOnFail": true,
+      "notes": "Set CALLFLOW_SUMMARY_WEBHOOK_URL to a CRM, Make.com, Zapier, or internal analytics webhook."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b1341ce-bffd-432d-9289-9a7ed126a5b3",
+              "leftValue": "={{ $('Normalize Call Event').item.json.handoff_required }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4df6d1a5-a927-458b-ac26-b9793bbe632e",
+      "name": "Handoff Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CALLFLOW_HANDOFF_WEBHOOK_URL || 'https://example.invalid/callflow-handoff' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-CallFlow-Secret",
+              "value": "={{ $env.CALLFLOW_AUTOMATION_SECRET || 'replace-me' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event: 'handoff.requested', priority: 'high', queue: $env.CALLFLOW_HANDOFF_QUEUE || 'sales-and-support', session_id: $('Normalize Call Event').item.json.session_id, call_sid: $('Normalize Call Event').item.json.call_sid, caller: $('Normalize Call Event').item.json.caller, intent: $('Normalize Call Event').item.json.intent, reason: $('Normalize Call Event').item.json.handoff_reason, summary: $('Normalize Call Event').item.json.summary, recording_url: $('Normalize Call Event').item.json.recording_url, requested_at: new Date().toISOString() }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "34dbad9a-63ba-468d-9307-c2a0a93b5f4f",
+      "name": "Notify Handoff Team",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        270,
+        20
+      ],
+      "continueOnFail": true,
+      "notes": "Set CALLFLOW_HANDOFF_WEBHOOK_URL to Slack, Teams, your help desk, or a Make/Zapier catch hook."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, session_id: $('Normalize Call Event').item.json.session_id, handoff_notified: $('Normalize Call Event').item.json.handoff_required } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "9fb17927-8132-4543-96a9-5b83766557c4",
+      "name": "Acknowledge Event",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        520,
+        100
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Post-call Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Call Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Call Event": {
+      "main": [
+        [
+          {
+            "node": "Send Call Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Call Summary": {
+      "main": [
+        [
+          {
+            "node": "Handoff Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff Required?": {
+      "main": [
+        [
+          {
+            "node": "Notify Handoff Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Handoff Team": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "49e63f02-573c-42ee-9fc7-d1b6eac4fe83",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

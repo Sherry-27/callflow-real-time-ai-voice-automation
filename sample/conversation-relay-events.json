@@ -1,0 +1,145 @@
+{
+  "fixture": "twilio-conversation-relay-demo",
+  "description": "Representative CallFlow events. Provider-generated and internal records are labelled separately from WebSocket messages.",
+  "schema_version": "1.1",
+  "events": [
+    {
+      "sequence": 1,
+      "direction": "inbound-websocket",
+      "timestamp": "2026-10-18T05:02:11.024Z",
+      "payload": {
+        "type": "setup",
+        "sessionId": "VX_callflow_demo_001",
+        "callSid": "CA_callflow_demo_001",
+        "accountSid": "AC_demo_account",
+        "from": "+15550101001",
+        "to": "+14155550199",
+        "direction": "inbound",
+        "callType": "PSTN",
+        "callStatus": "in-progress",
+        "customParameters": {
+          "caller": "+15550101001",
+          "channel": "phone"
+        }
+      }
+    },
+    {
+      "sequence": 2,
+      "direction": "provider-generated",
+      "timestamp": "2026-10-18T05:02:11.171Z",
+      "payload": {
+        "type": "welcome_greeting",
+        "source": "ConversationRelay welcomeGreeting TwiML attribute",
+        "text": "Hello, you are speaking with CallFlow AI. I can help with appointments and support, or connect you to a person at any time. How may I help?"
+      }
+    },
+    {
+      "sequence": 3,
+      "direction": "inbound-websocket",
+      "timestamp": "2026-10-18T05:02:16.488Z",
+      "payload": {
+        "type": "prompt",
+        "voicePrompt": "Please book a general appointment for 2026-10-19 at 2 PM.",
+        "lang": "en",
+        "last": true
+      }
+    },
+    {
+      "sequence": 4,
+      "direction": "internal",
+      "timestamp": "2026-10-18T05:02:16.719Z",
+      "payload": {
+        "type": "tool_call",
+        "tool": "book_appointment",
+        "arguments": {
+          "service": "general",
+          "requested_date": "2026-10-19",
+          "requested_time": "14:00",
+          "timezone": "Asia/Karachi"
+        }
+      }
+    },
+    {
+      "sequence": 5,
+      "direction": "internal",
+      "timestamp": "2026-10-18T05:02:16.908Z",
+      "payload": {
+        "type": "tool_result",
+        "tool": "book_appointment",
+        "success": true,
+        "result": {
+          "booking_ref": "APT-DEMO123",
+          "start_at": "2026-10-19T14:00:00+05:00",
+          "status": "booked"
+        }
+      }
+    },
+    {
+      "sequence": 6,
+      "direction": "outbound-websocket",
+      "timestamp": "2026-10-18T05:02:17.030Z",
+      "payload": {
+        "type": "text",
+        "token": "Your appointment is confirmed for Monday, 19 Oct at 2:00 PM. Your reference is APT-DEMO123.",
+        "last": true,
+        "lang": "multi",
+        "interruptible": true,
+        "preemptible": true
+      }
+    },
+    {
+      "sequence": 7,
+      "direction": "inbound-websocket",
+      "timestamp": "2026-10-18T05:02:18.141Z",
+      "payload": {
+        "type": "interrupt",
+        "utteranceUntilInterrupt": "Your appointment is confirmed",
+        "durationUntilInterruptMs": 1036
+      }
+    },
+    {
+      "sequence": 8,
+      "direction": "inbound-websocket",
+      "timestamp": "2026-10-18T05:02:20.426Z",
+      "payload": {
+        "type": "prompt",
+        "voicePrompt": "Please connect me to a human agent now.",
+        "lang": "en",
+        "last": true
+      }
+    },
+    {
+      "sequence": 9,
+      "direction": "internal",
+      "timestamp": "2026-10-18T05:02:20.603Z",
+      "payload": {
+        "type": "handoff_requested",
+        "reason": "explicit_human_request",
+        "priority": "normal",
+        "queue": "support"
+      }
+    },
+    {
+      "sequence": 10,
+      "direction": "outbound-websocket",
+      "timestamp": "2026-10-18T05:02:20.738Z",
+      "payload": {
+        "type": "text",
+        "token": "I am connecting you to a human specialist now. Your conversation context will carry over.",
+        "last": true,
+        "lang": "multi",
+        "interruptible": false,
+        "preemptible": false
+      }
+    },
+    {
+      "sequence": 11,
+      "direction": "outbound-websocket",
+      "timestamp": "2026-10-18T05:02:22.003Z",
+      "payload": {
+        "type": "end",
+        "handoffData": "{\"reasonCode\":\"live-agent-handoff\",\"sessionId\":\"VX_callflow_demo_001\",\"reason\":\"explicit_human_request\"}"
+      }
+    }
+  ]
+}
