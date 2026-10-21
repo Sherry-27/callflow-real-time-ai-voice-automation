@@ -1,23 +1,12 @@
 # CallFlow AI
 
-Portfolio-ready, real-time voice agent for an entry-level AI / Automation
-Engineer. CallFlow answers a Twilio phone call, receives speech events through
+Real-time voice agent. CallFlow answers a Twilio phone call, receives speech events through
 ConversationRelay, reasons with a low-latency Groq model, executes controlled
 business tools, and transfers sensitive or complex calls to a human with context.
 
 The included browser simulator runs without Twilio, Groq, Deepgram, ElevenLabs,
 or n8n credentials, so a recruiter can evaluate the orchestration locally.
 
-## Why this is a strong graduate portfolio project
-
-- Demonstrates a real-time WebSocket system rather than a basic chatbot.
-- Uses streaming speech and LLM responses, interruption-aware turn taking, typed
-  state, safe tool execution, persistence, observability, and graceful fallback.
-- Implements useful business actions: customer lookup, appointment booking,
-  support-ticket creation, and human escalation.
-- Shows a complete automation lifecycle: call, outcome, dashboard, warm handoff,
-  and optional n8n post-call follow-up.
-- Separates probabilistic conversation from deterministic business operations.
 
 ## Architecture
 
