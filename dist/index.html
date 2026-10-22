@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Interactive CallFlow AI portfolio demo for voice automation, tool calling, and human handoff."
+      content="CallFlow voice operations workspace for automation, tool execution, and context-preserving human handoff."
     />
     <meta name="theme-color" content="#0b1020" />
-    <title>CallFlow AI | Interactive Voice Automation Demo</title>
+    <title>CallFlow AI | Voice Operations</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -22,7 +22,7 @@
           </span>
           <span class="brand-copy">
             <strong>CallFlow</strong>
-            <small>interactive portfolio demo</small>
+            <small>real-time voice operations</small>
           </span>
         </a>
 
@@ -50,7 +50,7 @@
         <div class="stack-card" aria-label="Voice stack status">
           <div class="stack-card-header">
             <span class="eyebrow">Voice stack</span>
-            <span class="live-dot"><i></i> Demo ready</span>
+            <span class="live-dot"><i></i> Sandbox ready</span>
           </div>
           <ul>
             <li><span>Telephony</span><strong>Twilio</strong></li>
@@ -61,7 +61,7 @@
 
         <div class="sidebar-footer">
           <span class="avatar" aria-hidden="true">AI</span>
-          <span><strong>Portfolio demo</strong><small>Synthetic data only</small></span>
+          <span><strong>Sandbox mode</strong><small>Synthetic data</small></span>
           <span class="status-beacon" title="Systems online"></span>
         </div>
       </aside>
@@ -76,7 +76,7 @@
           </button>
           <div class="topbar-actions">
             <span id="connectionStatus" class="connection-status" role="status">
-              <i></i><span>Interactive demo</span>
+              <i></i><span>Workspace ready</span>
             </span>
             <button id="refreshButton" class="icon-button" type="button" aria-label="Refresh dashboard" title="Refresh dashboard">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.8-4.3L13 11h8V3l-3.3 3.3Z" /></svg>
@@ -87,9 +87,9 @@
         <div class="content-wrap">
           <section id="overview" class="page-heading" aria-labelledby="page-title">
             <div>
-              <div class="eyebrow-row"><span class="eyebrow">Recruiter demo</span><span class="date-chip" id="currentDate"></span></div>
-              <h1 id="page-title">AI voice automation control room</h1>
-              <p>Explore a credential-free simulation of CallFlow's conversation tools, workflow outcomes, and context-preserving human handoff.</p>
+              <div class="eyebrow-row"><span class="eyebrow">Voice operations</span><span class="date-chip" id="currentDate"></span></div>
+              <h1 id="page-title">Voice automation control room</h1>
+              <p>Monitor conversation routing, workflow outcomes, and context-preserving human handoffs from one workspace.</p>
             </div>
             <a class="primary-button" href="#simulator">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z" /></svg>
@@ -97,11 +97,11 @@
             </a>
           </section>
 
-          <section class="demo-banner" aria-label="Demo environment information">
+          <section class="demo-banner" aria-label="Sandbox environment information">
             <div>
-              <span class="eyebrow">Safe demo environment</span>
-              <strong>Everything runs locally in this browser</strong>
-              <p>The interface uses synthetic call data and deterministic tool simulations. The production project supports Twilio ConversationRelay, Groq streaming, Deepgram, ElevenLabs, and n8n workflows.</p>
+              <span class="eyebrow">Sandbox environment</span>
+              <strong>Privacy-first browser runtime</strong>
+              <p>Synthetic call data and deterministic tools power this workspace. Live integrations support Twilio ConversationRelay, Groq streaming, Deepgram, ElevenLabs, and n8n workflows.</p>
             </div>
             <div class="demo-stack" aria-label="Production technology stack">
               <span>Twilio</span><span>Groq</span><span>Deepgram</span><span>ElevenLabs</span><span>n8n</span>
@@ -112,7 +112,7 @@
             <article class="kpi-card accent-violet">
               <div class="kpi-topline">
                 <span class="kpi-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.8 15.8 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1.1l-2.3 2.1Z" /></svg></span>
-                <span class="trend-chip neutral">Demo dataset</span>
+                <span class="trend-chip neutral">Current period</span>
               </div>
               <span class="kpi-label">Total calls</span>
               <strong id="totalCalls" class="kpi-value skeleton-text">—</strong>
@@ -157,7 +157,7 @@
                   <span class="eyebrow">Conversation log</span>
                   <h2>Recent calls</h2>
                 </div>
-                <span class="soft-chip"><i></i> Synthetic feed</span>
+                <span class="soft-chip"><i></i> Masked activity</span>
               </div>
               <div class="table-scroll">
                 <table>
@@ -204,7 +204,7 @@
             <div class="simulator-copy">
               <span class="eyebrow">Browser test console</span>
               <h2 id="simulator-title">Try the conversation brain</h2>
-              <p>Type what a caller would say. This public demo mirrors intent routing, tool execution, and human handoff without credentials or a real phone call.</p>
+              <p>Enter a caller request to test intent routing, tool execution, and human handoff in the browser sandbox.</p>
               <div class="capability-list" aria-label="Simulator capabilities">
                 <span><i></i> Session memory</span>
                 <span><i></i> Tool execution</span>
@@ -266,8 +266,8 @@
           </section>
 
           <footer class="page-footer">
-            <span>CallFlow AI · Interactive portfolio demo · Synthetic data</span>
-            <span>Demo refreshed <time id="lastSynced">—</time></span>
+            <span>CallFlow AI · Voice operations workspace · Synthetic data</span>
+            <span>Last updated <time id="lastSynced">—</time></span>
           </footer>
         </div>
       </main>

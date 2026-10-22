@@ -220,8 +220,8 @@ the payload, and add authentication appropriate to your deployment.
 
 - Use the activated workflow's production URL, not an expired test URL.
 - Confirm the n8n endpoint is reachable from the CallFlow container/deployment.
-- Remember delivery is best effort in this portfolio build; inspect app and n8n
-  logs, then replay a new demo session.
+- Remember delivery is best effort in the current implementation; inspect app and
+  n8n logs, then replay a new sandbox session.
 
 ## Launch checklist
 

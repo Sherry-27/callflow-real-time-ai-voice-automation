@@ -45,3 +45,5 @@ Thumbs.db
 # Local automation state
 .n8n/
 node_modules/
+
+.vercel

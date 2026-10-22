@@ -1,6 +1,6 @@
 # Architecture
 
-CallFlow AI is a real-time voice orchestration reference project. Twilio owns the
+CallFlow AI is a real-time voice orchestration platform. Twilio owns the
 phone connection and speech layer, while the FastAPI application owns dialogue
 state, model calls, business rules, tools, persistence, and escalation.
 
@@ -162,7 +162,7 @@ acceptance if validation fails.
 
 ## Data and privacy
 
-The demo SQLite store is for portfolio use, not regulated or high-volume traffic.
+The bundled SQLite store is intended for local and low-volume sandbox use, not regulated or high-volume traffic.
 Before production:
 
 - minimize transcript retention and define a deletion schedule;

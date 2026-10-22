@@ -1,9 +1,9 @@
-# Five-minute interview demo
+# Five-minute operations walkthrough
 
 This script demonstrates the system without spending telephony or LLM credits.
 Use the live-call extension only when your Twilio and Groq environment is ready.
 
-## Before the interview
+## Before the walkthrough
 
 ```powershell
 Copy-Item .env.example .env
@@ -44,8 +44,8 @@ After each turn, point out:
 - that session memory keeps the turns connected.
 
 The phone maps to synthetic record `CUST-DEMO-001`, and the tool response exposes
-only a masked phone number. The interview point is the controlled tool boundary,
-not the fixture itself.
+only a masked phone number. The key point is the controlled tool boundary, not the
+fixture itself.
 
 ## 2:20–3:10 — Show the safety path
 
@@ -75,8 +75,8 @@ Open `docs/architecture.md` and cover four decisions:
    spoken output.
 4. Business tools remain deterministic and validated even when an LLM is enabled.
 
-Say that the missing-key fallback is deliberate: reviewers can run the project,
-while live deployment gets natural LLM wording by adding a Groq secret.
+Say that the missing-key fallback is deliberate: the system remains testable
+locally, while live deployments get natural LLM wording by adding a Groq secret.
 
 ## 4:00–4:35 — Show operational completeness
 
@@ -97,8 +97,7 @@ Say:
 > voice protocol, latency, safe tools, state, human escalation, automation,
 > security, observability, deployment, and a no-credential test path.
 
-Then ask whether the interviewer would like to inspect the WebSocket handler, tool
-registry, or live TwiML handoff.
+Then inspect the WebSocket handler, tool registry, or live TwiML handoff as needed.
 
 ## Optional live-call extension
 
@@ -109,8 +108,8 @@ Only use this after completing `docs/twilio-setup.md`.
 3. Interrupt the assistant once to demonstrate barge-in.
 4. Switch briefly between English and a supported second language.
 5. Ask for a human.
-6. Answer the agent phone and let the interviewer hear the private whisper before
-   the bridge completes.
+6. Answer the agent phone and confirm the private whisper plays before the bridge
+   completes.
 
 Do not improvise payment-card, health, password, or one-time-code examples.
 
@@ -124,7 +123,7 @@ is an allow-list and the application confirms only verified results.
 
 ### Why use ConversationRelay instead of handling raw audio?
 
-It keeps the portfolio focused on the agent and business orchestration while
+It keeps the application focused on the agent and business orchestration while
 Twilio handles the live STT/TTS session. The application still demonstrates a
 real-time WebSocket protocol, interruptions, partial turns, and token streaming.
 
@@ -153,7 +152,7 @@ turns, interruption recovery, first-response latency, first-token latency, and
 caller drop-off. Review samples with a human rubric instead of trusting one LLM
 judge score.
 
-## Resume version
+## Technical summary
 
 > Built a real-time voice automation platform using FastAPI WebSockets, Twilio
 > ConversationRelay, Deepgram Flux, ElevenLabs TTS, Groq streaming inference, safe

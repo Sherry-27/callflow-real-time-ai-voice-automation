@@ -4,8 +4,8 @@ Real-time voice agent. CallFlow answers a Twilio phone call, receives speech eve
 ConversationRelay, reasons with a low-latency Groq model, executes controlled
 business tools, and transfers sensitive or complex calls to a human with context.
 
-The included browser simulator runs without Twilio, Groq, Deepgram, ElevenLabs,
-or n8n credentials, so a recruiter can evaluate the orchestration locally.
+The included browser sandbox runs without Twilio, Groq, Deepgram, ElevenLabs,
+or n8n credentials, enabling local evaluation and integration testing.
 
 
 ## Architecture
@@ -72,7 +72,7 @@ Open <http://localhost:8001/?key=local-demo-key>, or call the simulator directly
 ```powershell
 $headers = @{ "X-API-Key" = "local-demo-key" }
 $body = @{
-  session_id = "portfolio-demo"
+  session_id = "callflow-sandbox"
   caller = "+923001234567"
   text = "I need to book a consultation tomorrow afternoon"
 } | ConvertTo-Json
@@ -88,7 +88,7 @@ Use the same `session_id` for later turns so the simulator preserves context.
 
 ## Do I need a Groq API key?
 
-Not for the local portfolio demo. Without `GROQ_API_KEY`, the simulator and
+Not for the local browser sandbox. Without `GROQ_API_KEY`, the simulator and
 tests use a deterministic fallback, and the appointment, ticket, customer, and
 handoff tools still work.
 
@@ -200,20 +200,13 @@ the test suite on supported Python versions.
 - Use a managed database, centralized logs with redaction, queue/retry handling,
   rate limiting, backups, and a secret manager before handling real customers.
 - Keep consequential or regulated decisions and irreversible actions under human
-  review. The included tools operate on demo data only.
-
-## Suggested resume bullet
-
-> Built a real-time AI voice agent with FastAPI WebSockets, Twilio
-> ConversationRelay, Deepgram Flux, ElevenLabs TTS, Groq streaming inference, safe
-> business tools, warm human handoff, SQLite analytics, and n8n post-call
-> automation; included a credential-free simulator, Docker deployment, and CI.
+  review. The included tools operate on synthetic data only.
 
 ## Repository map
 
 ```text
 app/                    FastAPI transport, orchestration, tools, storage, dashboard
-docs/                   Architecture, Twilio setup, and interview demo
+docs/                   Architecture, Twilio setup, and operations walkthrough
 n8n/workflows/          Importable post-call automation
 sample/                 Example events and simulator conversations
 tests/                  Unit and integration tests

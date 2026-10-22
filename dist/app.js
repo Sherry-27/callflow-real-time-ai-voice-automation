@@ -586,7 +586,7 @@
 
     const successful = [metricsResult, callsResult].filter((result) => result.status === "fulfilled").length;
     if (successful === 2) {
-      setConnection("online", IS_DEMO ? "Interactive demo" : "API connected");
+      setConnection("online", IS_DEMO ? "Sandbox ready" : "API connected");
       setText(elements.lastSynced, timeFormatter.format(new Date()));
       if (!quiet) showToast(IS_DEMO ? "Synthetic demo data refreshed." : "Dashboard is up to date.");
     } else if (successful === 1) {
