@@ -119,6 +119,11 @@ live session, but uses text input instead of ConversationRelay events. When Groq
 is absent, a deterministic response renderer explains the verified action result.
 This path intentionally needs no external account, network call, or paid service.
 
+The optional caller number is metadata for the simulated session only. Supplying
+it never initiates a call or SMS. Live telephony begins only when a customer calls
+the configured Twilio number; this repository does not implement an outbound
+customer dialer.
+
 The simulator API still requires `X-API-Key`. This protects a deployed demo from
 unrestricted writes; `local-demo-key` is only a local default and must be replaced.
 

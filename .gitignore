@@ -32,7 +32,7 @@ build/
 dist/
 *.egg-info/
 
-# Public, credential-free portfolio demo deployed with Sites
+# Public static browser sandbox deployed with Vercel
 !dist/
 !dist/**
 
@@ -45,5 +45,4 @@ Thumbs.db
 # Local automation state
 .n8n/
 node_modules/
-
 .vercel

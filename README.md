@@ -4,8 +4,39 @@ Real-time voice agent. CallFlow answers a Twilio phone call, receives speech eve
 ConversationRelay, reasons with a low-latency Groq model, executes controlled
 business tools, and transfers sensitive or complex calls to a human with context.
 
+**Hosted browser sandbox:** <https://callflow-voice-ai.vercel.app/>
+
 The included browser sandbox runs without Twilio, Groq, Deepgram, ElevenLabs,
 or n8n credentials, enabling local evaluation and integration testing.
+
+## What the hosted website does
+
+The Vercel website serves the static browser sandbox from `dist/`. It lets a user
+type a caller request and observe intent routing, deterministic tool results,
+session memory, dashboard metrics, and a simulated warm handoff. Its call records
+and KPI values are synthetic.
+
+The optional **Caller number** field only labels and masks the simulated caller in
+the browser session. Entering a phone number does **not** dial it, send an SMS, or
+start a real Twilio call. The hosted sandbox performs no outbound telephony.
+
+## How live phone calls work
+
+CallFlow's telephony backend is designed for **inbound** calls:
+
+1. A customer calls a voice-enabled Twilio number.
+2. Twilio sends `POST /voice/incoming` and opens ConversationRelay.
+3. Deepgram transcribes the caller; FastAPI receives structured prompt events over
+   `/ws/conversation`.
+4. The orchestration layer selects a controlled business tool and Groq streams a
+   concise response; ElevenLabs speaks it through Twilio.
+5. When escalation is required, Twilio calls the configured
+   `HUMAN_AGENT_PHONE`, plays a private summary to the human, and bridges the call.
+6. The final outcome is stored and can be sent to n8n for CRM, notification, or
+   follow-up automation.
+
+Only the human-handoff step dials a configured agent number. Outbound customer
+calling or campaign dialing is not implemented in this repository.
 
 
 ## Architecture
