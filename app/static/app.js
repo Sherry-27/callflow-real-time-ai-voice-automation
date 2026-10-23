@@ -28,7 +28,6 @@
     handoffBadge: document.getElementById("handoffBadge"),
     connectionStatus: document.getElementById("connectionStatus"),
     refreshButton: document.getElementById("refreshButton"),
-    currentDate: document.getElementById("currentDate"),
     lastSynced: document.getElementById("lastSynced"),
     form: document.getElementById("simulatorForm"),
     sessionId: document.getElementById("sessionId"),
@@ -49,12 +48,6 @@
   };
 
   const numberFormatter = new Intl.NumberFormat("en-PK", { maximumFractionDigits: 1 });
-  const dateFormatter = new Intl.DateTimeFormat("en-PK", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
   const timeFormatter = new Intl.DateTimeFormat("en-PK", {
     hour: "2-digit",
     minute: "2-digit",
@@ -547,7 +540,6 @@
   }
 
   function initialize() {
-    setText(elements.currentDate, dateFormatter.format(new Date()));
     initializeNavigation();
     initializeSimulator();
     elements.refreshButton.addEventListener("click", () => refreshDashboard());
