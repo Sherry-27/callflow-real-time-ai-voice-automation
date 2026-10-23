@@ -256,7 +256,7 @@
     if (!session) {
       session = {
         id,
-        caller: asText(request.caller, "+923000000000"),
+        caller: asText(request.caller, "Anonymous caller"),
         turns: 0,
         startedAt: new Date().toISOString(),
         countedAppointment: false,
