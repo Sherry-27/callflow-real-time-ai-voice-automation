@@ -12,6 +12,7 @@
   const MAX_CALL_ROWS = 8;
   const MAX_HANDOFF_ROWS = 4;
   const dashboardApiKey = new URLSearchParams(window.location.search).get("key")?.trim() || "local-demo-key";
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
   const IS_DEMO = document.documentElement.dataset.runtime === "static-demo";
 
   const demoStore = {
@@ -92,6 +93,10 @@
     caller: document.getElementById("caller"),
     messageInput: document.getElementById("messageInput"),
     sendButton: document.getElementById("sendButton"),
+    voiceButton: document.getElementById("voiceButton"),
+    voiceOutputToggle: document.getElementById("voiceOutputToggle"),
+    voiceOutputLabel: document.getElementById("voiceOutputLabel"),
+    voiceStatus: document.getElementById("voiceStatus"),
     transcript: document.getElementById("transcript"),
     turnMetadata: document.getElementById("turnMetadata"),
     resetConversation: document.getElementById("resetConversation"),
@@ -102,6 +107,14 @@
     calls: [],
     isRefreshing: false,
     isSending: false,
+    isListening: false,
+    isSpeaking: false,
+    voiceRepliesEnabled: true,
+    recognition: null,
+    utterance: null,
+    pendingVoiceTranscript: "",
+    cancelRecognition: false,
+    recognitionError: false,
     toastTimer: null,
   };
 
@@ -666,11 +679,202 @@
     elements.messageInput.style.height = `${Math.min(elements.messageInput.scrollHeight, 116)}px`;
   }
 
+  function voiceLanguage() {
+    const language = navigator.language || document.documentElement.lang || "en-US";
+    return language.toLowerCase() === "en" ? "en-US" : language;
+  }
+
+  function setVoiceStatus(label, status = "ready") {
+    if (!elements.voiceStatus) return;
+    setText(elements.voiceStatus, label);
+    elements.voiceStatus.dataset.state = status;
+  }
+
+  function setListening(isListening) {
+    state.isListening = isListening;
+    elements.voiceButton.classList.toggle("listening", isListening);
+    elements.voiceButton.setAttribute("aria-pressed", String(isListening));
+    elements.voiceButton.setAttribute("aria-label", isListening ? "Stop voice input" : "Start voice input");
+    elements.voiceButton.title = isListening ? "Stop listening" : "Speak to Ava";
+    if (isListening) setVoiceStatus("Listening… speak now", "listening");
+  }
+
+  function updateVoiceOutputControl() {
+    const enabled = state.voiceRepliesEnabled;
+    elements.voiceOutputToggle.setAttribute("aria-pressed", String(enabled));
+    elements.voiceOutputToggle.title = enabled ? "Turn spoken replies off" : "Turn spoken replies on";
+    setText(elements.voiceOutputLabel, enabled ? "Voice replies on" : "Voice replies off");
+  }
+
+  function stopSpeaking({ announce = false } = {}) {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    state.isSpeaking = false;
+    state.utterance = null;
+    if (announce && !state.isListening) {
+      setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
+    }
+  }
+
+  function preferredVoice(language) {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    const exact = voices.find((voice) => voice.lang.toLowerCase() === language.toLowerCase());
+    if (exact) return exact;
+    const languageFamily = language.split("-")[0].toLowerCase();
+    return voices.find((voice) => voice.lang.toLowerCase().startsWith(`${languageFamily}-`)) || null;
+  }
+
+  function speakReply(message) {
+    const text = asText(message, "").trim();
+    if (!text || !state.voiceRepliesEnabled || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+      if (!state.isListening) setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
+      return;
+    }
+
+    stopSpeaking();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = voiceLanguage();
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    const selectedVoice = preferredVoice(utterance.lang);
+    if (selectedVoice) utterance.voice = selectedVoice;
+
+    state.utterance = utterance;
+    state.isSpeaking = true;
+    setVoiceStatus("Ava is speaking…", "speaking");
+
+    utterance.onend = () => {
+      if (state.utterance !== utterance) return;
+      state.utterance = null;
+      state.isSpeaking = false;
+      if (!state.isListening) setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
+    };
+    utterance.onerror = () => {
+      if (state.utterance !== utterance) return;
+      state.utterance = null;
+      state.isSpeaking = false;
+      if (!state.isListening) setVoiceStatus("Spoken reply unavailable · text is ready", "unavailable");
+    };
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function toggleVoiceOutput() {
+    if (elements.voiceOutputToggle.disabled) return;
+    state.voiceRepliesEnabled = !state.voiceRepliesEnabled;
+    updateVoiceOutputControl();
+    if (!state.voiceRepliesEnabled) {
+      stopSpeaking({ announce: true });
+      showToast("Spoken replies are off. Text chat remains available.");
+    } else {
+      setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
+      showToast("Spoken replies are on.");
+    }
+  }
+
+  function toggleVoiceInput() {
+    if (!state.recognition) return;
+    if (state.isListening) {
+      state.recognition.stop();
+      return;
+    }
+    if (state.isSending) {
+      showToast("Ava is still preparing the previous response.");
+      return;
+    }
+
+    stopSpeaking();
+    state.pendingVoiceTranscript = "";
+    state.cancelRecognition = false;
+    state.recognitionError = false;
+    state.recognition.lang = voiceLanguage();
+    try {
+      state.recognition.start();
+    } catch (_error) {
+      setVoiceStatus("Mic is busy · try again", "unavailable");
+    }
+  }
+
+  function initializeVoiceDemo() {
+    const speechOutputSupported = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+    state.voiceRepliesEnabled = speechOutputSupported;
+    elements.voiceOutputToggle.disabled = !speechOutputSupported;
+    updateVoiceOutputControl();
+    elements.voiceOutputToggle.addEventListener("click", toggleVoiceOutput);
+
+    if (!SpeechRecognitionAPI) {
+      elements.voiceButton.disabled = true;
+      setVoiceStatus("Mic unavailable · type instead", "unavailable");
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = voiceLanguage();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    state.recognition = recognition;
+    elements.voiceButton.disabled = false;
+    setVoiceStatus("Voice ready", "ready");
+
+    recognition.onstart = () => setListening(true);
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let index = 0; index < event.results.length; index += 1) {
+        transcript += event.results[index][0]?.transcript || "";
+      }
+      state.pendingVoiceTranscript = transcript.trim();
+      elements.messageInput.value = state.pendingVoiceTranscript;
+      resizeMessageInput();
+    };
+    recognition.onerror = (event) => {
+      const reason = event.error || "unknown";
+      state.recognitionError = true;
+      if (reason === "aborted" && state.cancelRecognition) return;
+      state.pendingVoiceTranscript = "";
+      if (reason === "not-allowed" || reason === "service-not-allowed") {
+        setVoiceStatus("Mic permission blocked · type instead", "unavailable");
+        showToast("Allow microphone access in the browser to use voice input.", "error");
+      } else if (reason === "no-speech") {
+        setVoiceStatus("No speech detected · try again", "unavailable");
+      } else {
+        setVoiceStatus("Voice input unavailable · type instead", "unavailable");
+        showToast("Voice input stopped. You can continue with text.", "error");
+      }
+    };
+    recognition.onend = () => {
+      setListening(false);
+      const transcript = state.pendingVoiceTranscript.trim();
+      state.pendingVoiceTranscript = "";
+      if (state.cancelRecognition) {
+        state.cancelRecognition = false;
+        state.recognitionError = false;
+        setVoiceStatus("Voice ready", "ready");
+        return;
+      }
+      if (transcript && !state.isSending) {
+        elements.messageInput.value = transcript;
+        resizeMessageInput();
+        elements.form.requestSubmit();
+      } else if (!state.recognitionError) {
+        setVoiceStatus("Voice ready", "ready");
+      }
+      state.recognitionError = false;
+    };
+
+    elements.voiceButton.addEventListener("click", toggleVoiceInput);
+  }
+
   function setSending(isSending) {
     state.isSending = isSending;
     elements.sendButton.disabled = isSending;
     elements.messageInput.disabled = isSending;
+    elements.voiceButton.disabled = isSending || !state.recognition;
     elements.sendButton.querySelector("span").textContent = isSending ? "Sending" : "Send";
+    if (isSending) {
+      setVoiceStatus("Ava is thinking…", "thinking");
+    } else if (!state.isSpeaking && !state.isListening) {
+      setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
+    }
   }
 
   async function submitSimulation(event) {
@@ -689,6 +893,7 @@
       text,
     };
 
+    stopSpeaking();
     appendMessage("user", text);
     elements.messageInput.value = "";
     resizeMessageInput();
@@ -705,6 +910,7 @@
 
       const responseText = payload.reply || payload.agent_response || payload.response || payload.message || "I’m ready for your next question.";
       appendMessage("agent", asText(responseText, "I’m ready for your next question."));
+      speakReply(responseText);
       if (payload.session_id) elements.sessionId.value = asText(payload.session_id, "");
       renderTurnMetadata(payload);
 
@@ -723,6 +929,12 @@
   }
 
   function resetConversation() {
+    if (state.isListening && state.recognition) {
+      state.cancelRecognition = true;
+      state.pendingVoiceTranscript = "";
+      state.recognition.abort();
+    }
+    stopSpeaking();
     clearElement(elements.transcript);
     appendMessage("agent", "Hi! I’m Ava, the CallFlow AI assistant. How can I help you today?");
     elements.sessionId.value = "";
@@ -730,6 +942,7 @@
     renderTurnMetadata({});
     resizeMessageInput();
     elements.messageInput.focus();
+    setVoiceStatus(state.recognition ? "Voice ready" : "Mic unavailable · type instead", state.recognition ? "ready" : "unavailable");
     showToast("A fresh test session is ready.");
   }
 
@@ -750,6 +963,7 @@
   function initializeSimulator() {
     elements.form.addEventListener("submit", submitSimulation);
     elements.resetConversation.addEventListener("click", resetConversation);
+    initializeVoiceDemo();
     elements.messageInput.addEventListener("input", resizeMessageInput);
     elements.messageInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {

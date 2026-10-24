@@ -12,9 +12,18 @@ or n8n credentials, enabling local evaluation and integration testing.
 ## What the hosted website does
 
 The Vercel website serves the static browser sandbox from `dist/`. It lets a user
-type a caller request and observe intent routing, deterministic tool results,
-session memory, dashboard metrics, and a simulated warm handoff. Its call records
-and KPI values are synthetic.
+type or speak a caller request and observe intent routing, deterministic tool
+results, session memory, dashboard metrics, and a simulated warm handoff. When
+supported, the browser's speech-recognition API fills and submits the caller turn,
+and browser speech synthesis reads Ava's reply aloud. Text input always remains as
+the fallback. The browser's speech service may process microphone audio; CallFlow
+receives only the resulting transcript and does not record or store audio. Speech
+processing availability and behavior depend on the visitor's browser. Call records
+and KPI values in this sandbox are synthetic.
+
+The browser voice controls are an interview-friendly wrapper around the sandbox;
+they are not Twilio telephony and do not use Deepgram or ElevenLabs. The live phone
+architecture described below remains a separate, credentialed backend path.
 
 The optional **Caller number** field only labels and masks the simulated caller in
 the browser session. Entering a phone number does **not** dial it, send an SMS, or
